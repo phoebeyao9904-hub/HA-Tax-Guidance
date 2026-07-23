@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美国州税检索表</title>
+    <title>US State Tax Lookup</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -19,9 +19,9 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
         .custom-scrollbar:hover::-webkit-scrollbar-thumb { background-color: #94a3b8; }
         
-        .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .animate-fade-in { animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -39,15 +39,21 @@
                     <i class="fa-solid fa-building-columns text-2xl text-indigo-400"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight">美国州税检索表</h1>
+                    <h1 id="ui-title" class="text-xl font-bold tracking-tight">美国州税检索表</h1>
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
-                <!-- 申报日历按钮 -->
-                <button id="openCalendarBtn" class="text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center shadow-sm">
-                    <i class="fa-regular fa-calendar-days md:mr-2"></i> <span class="hidden md:inline">全美申报日历</span>
+            <div class="flex items-center space-x-3 md:space-x-4">
+                
+                <!-- 语言切换按钮 -->
+                <button id="langToggleBtn" class="text-sm bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg font-bold transition-colors flex items-center shadow-sm border border-slate-700">
+                    <i class="fa-solid fa-language mr-1.5 text-indigo-400"></i> <span id="currentLangLabel">English</span>
                 </button>
-                <div class="hidden lg:flex text-sm bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-700 items-center text-slate-300">
+
+                <!-- 申报日历按钮 -->
+                <button id="openCalendarBtn" class="text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-3 md:px-4 py-2 rounded-lg font-medium transition-colors flex items-center shadow-sm">
+                    <i class="fa-regular fa-calendar-days md:mr-2"></i> <span id="ui-btnCalendar" class="hidden md:inline">全美申报日历</span>
+                </button>
+                <div class="hidden lg:flex text-sm bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-700 items-center text-slate-300" id="ui-pl86272">
                     <i class="fa-solid fa-shield-halved mr-2 text-emerald-400"></i>
                     <span><strong class="text-white">PL 86-272 保护：</strong>仅限于有形动产推销，受联邦法豁免企业所得税。</span>
                 </div>
@@ -62,17 +68,16 @@
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-[280px] sm:w-[320px] md:relative md:w-[320px] lg:w-[360px] transform -translate-x-full md:translate-x-0 transition duration-300 ease-in-out flex-shrink-0 flex flex-col h-full bg-white md:rounded-2xl shadow-2xl md:shadow-sm border-r md:border border-slate-200 overflow-hidden">
             <div class="p-5 border-b border-slate-100 bg-slate-50/50">
                 <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-base font-semibold text-slate-700 flex items-center">
+                    <h2 id="ui-selectState" class="text-base font-semibold text-slate-700 flex items-center">
                         <i class="fa-solid fa-location-dot text-indigo-500 mr-2"></i> 选择目标州
                     </h2>
-                    <!-- 移动端关闭按钮 -->
                     <button id="closeSidebarBtn" class="md:hidden text-slate-400 hover:text-slate-600 focus:outline-none p-1">
                         <i class="fa-solid fa-xmark text-xl"></i>
                     </button>
                 </div>
                 <div class="relative">
                     <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400"></i>
-                    <input type="text" id="searchInput" placeholder="搜索州名或缩写 (如 WA, 纽约)..." class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block pl-10 p-2.5 transition-shadow shadow-sm">
+                    <input type="text" id="searchInput" placeholder="搜索州名或缩写 (如 WA)..." class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block pl-10 p-2.5 transition-shadow shadow-sm">
                 </div>
             </div>
             <div class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1" id="stateList">
@@ -87,8 +92,8 @@
                 <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
                     <i class="fa-solid fa-map-location-dot text-4xl text-indigo-300"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-700 mb-3">请选择目标州</h2>
-                <p class="text-slate-500 max-w-md leading-relaxed">
+                <h2 id="ui-welcomeTitle" class="text-2xl font-bold text-slate-700 mb-3">请选择目标州</h2>
+                <p id="ui-welcomeDesc" class="text-slate-500 max-w-md leading-relaxed">
                     在左侧选择您产生业务的州，以查看针对 C-Corp 批发企业的详细税务合规要求。<br><br>
                     <span class="text-sm bg-slate-100 px-3 py-1 rounded-full text-slate-600 inline-block mt-2"><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> 提示：优先关注有库存税、总收入税的州。</span>
                 </p>
@@ -101,7 +106,6 @@
                         <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md" id="stateAbbr"></div>
                         <div>
                             <h2 class="text-2xl font-bold text-slate-800" id="stateTitle"></h2>
-                            <p class="text-slate-500 text-sm mt-0.5" id="stateEnTitle"></p>
                         </div>
                     </div>
                     <div id="tagContainer" class="flex flex-wrap gap-2 mt-3"></div>
@@ -121,7 +125,7 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm modal-overlay"></div>
         <div class="absolute inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 bg-white w-full md:w-[850px] max-h-[90vh] md:h-[600px] rounded-t-3xl md:rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all">
             <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
-                <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                <h2 id="ui-calHeader" class="text-xl font-bold text-slate-800 flex items-center">
                     <div class="w-8 h-8 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 shadow-sm">
                         <i class="fa-regular fa-calendar-check"></i>
                     </div>
@@ -133,7 +137,6 @@
             </div>
             
             <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
-                <!-- 左侧：日历控件 -->
                 <div class="w-full md:w-[55%] flex flex-col border-b md:border-b-0 md:border-r border-slate-100 p-5 bg-white overflow-y-auto">
                     <div class="flex justify-between items-center mb-6">
                         <button id="prevMonthBtn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 transition-colors focus:outline-none">
@@ -145,14 +148,8 @@
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-7 gap-1 text-center mb-2">
-                        <div class="text-xs font-semibold text-rose-500">日</div>
-                        <div class="text-xs font-semibold text-slate-500">一</div>
-                        <div class="text-xs font-semibold text-slate-500">二</div>
-                        <div class="text-xs font-semibold text-slate-500">三</div>
-                        <div class="text-xs font-semibold text-slate-500">四</div>
-                        <div class="text-xs font-semibold text-slate-500">五</div>
-                        <div class="text-xs font-semibold text-slate-500">六</div>
+                    <div id="ui-daysGrid" class="grid grid-cols-7 gap-1 text-center mb-2">
+                        <!-- Days populated by JS -->
                     </div>
                     
                     <div id="calendarGrid" class="grid grid-cols-7 gap-1 text-center">
@@ -160,7 +157,6 @@
                     </div>
                 </div>
                 
-                <!-- 右侧：详情展示 -->
                 <div class="w-full md:w-[45%] bg-slate-50/80 p-5 flex flex-col h-full overflow-y-auto custom-scrollbar">
                     <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
                         <h4 id="selectedDateHeader" class="font-bold text-slate-700 text-lg">本月关键节点</h4>
@@ -175,42 +171,98 @@
     </div>
 
     <script>
-        // Formatter utilities
+        let currentLang = 'zh'; // Global language state
+
+        const i18n = {
+            zh: {
+                title: "美国州税检索表",
+                pl86272: `<i class="fa-solid fa-shield-halved mr-2 text-emerald-400"></i><span><strong class="text-white">联邦法 86-272 保护：</strong>仅限于有形动产推销，受联邦法豁免企业所得税。</span>`,
+                btnCalendar: "全美申报日历",
+                searchPlaceholder: "搜索州名或缩写 (如 WA)...",
+                selectState: `<i class="fa-solid fa-location-dot text-indigo-500 mr-2"></i> 选择目标州`,
+                welcomeTitle: "请选择目标州",
+                welcomeDesc: "在左侧选择您产生业务的州，以查看针对 C-Corp 批发企业的详细税务合规要求。<br><br><span class='text-sm bg-slate-100 px-3 py-1 rounded-full text-slate-600 inline-block mt-2'><i class='fa-solid fa-lightbulb text-amber-500 mr-1'></i> 提示：优先关注有库存税、总收入税的州。</span>",
+                nexusTitle: "纳税义务触发条件",
+                rateTitle: "税率",
+                calcTitle: "计算方法与实务",
+                deadlineTitle: "申报时间",
+                penaltyTitle: "晚交惩罚",
+                certBtn: "获取表格: ",
+                calHeader: "全美 C-Corp 税务申报日历",
+                calSummary: "重要节点汇总",
+                calReset: "查看全月",
+                calEmpty: "本月无重大联邦/州级税务截止日。",
+                calEmptySub: "注：常规按月申报的销售及工资税除外。",
+                calDetail: "申报详情",
+                days: ["日", "一", "二", "三", "四", "五", "六"],
+                months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+            },
+            en: {
+                title: "US State Tax Lookup",
+                pl86272: `<i class="fa-solid fa-shield-halved mr-2 text-emerald-400"></i><span><strong class="text-white">PL 86-272 Protection:</strong> Exempts C-Corps from net income tax if activity is strictly limited to soliciting sales of tangible goods.</span>`,
+                btnCalendar: "Filing Calendar",
+                searchPlaceholder: "Search state or abbreviation (e.g., WA)...",
+                selectState: `<i class="fa-solid fa-location-dot text-indigo-500 mr-2"></i> Select State`,
+                welcomeTitle: "Please Select a State",
+                welcomeDesc: "Select a state from the left to view detailed tax compliance requirements for C-Corp wholesale businesses.<br><br><span class='text-sm bg-slate-100 px-3 py-1 rounded-full text-slate-600 inline-block mt-2'><i class='fa-solid fa-lightbulb text-amber-500 mr-1'></i> Tip: Pay close attention to states with Inventory Tax and Gross Receipts Tax.</span>",
+                nexusTitle: "Nexus Threshold",
+                rateTitle: "Tax Rate",
+                calcTitle: "Calculation & Practice",
+                deadlineTitle: "Filing Deadline",
+                penaltyTitle: "Late Penalty",
+                certBtn: "Get Form: ",
+                calHeader: "National C-Corp Tax Calendar",
+                calSummary: "Key Deadlines Summary",
+                calReset: "View Full Month",
+                calEmpty: "No major federal/state tax deadlines this month.",
+                calEmptySub: "Note: Excludes regular monthly sales & payroll taxes.",
+                calDetail: "Deadline Details",
+                days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            }
+        };
+
         const formula = (text) => `<div class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 my-2 font-mono text-sm text-indigo-800"><i class="fa-solid fa-calculator text-indigo-400 mr-2"></i>${text}</div>`;
-        
-        // Data generation helpers
-        const cit = (rate, threshold, calcFormula, pl86272 = true, extraNote = "") => ({
-            type: "企业所得税 (Corporate Income Tax / CIT)",
-            nexus: `<b>经济关联门槛 (Economic Nexus)：</b>年度本州总销售额达到或超过 <b>${threshold}</b>。` + 
-                   (pl86272 ? `<br><span class='text-emerald-700 text-xs mt-1.5 block font-medium'><i class="fa-solid fa-shield-halved"></i> 联邦法保护：纯跨州有形货物批发，受联邦 PL 86-272 保护，可免缴此类基于净利润的所得税。</span>` : ""),
+
+        const cit = (rate, threshold_zh, threshold_en, calcFormula_zh, calcFormula_en, pl86272 = true, extraNote_zh = "", extraNote_en = "") => ({
+            type_zh: "企业所得税", type_en: "Corporate Income Tax", icon: "fa-landmark text-emerald-600",
+            nexus_zh: `<b>经济关联门槛：</b>年度本州总销售额达到或超过 <b>${threshold_zh}</b>。` + (pl86272 ? `<br><span class='text-emerald-700 text-xs mt-1.5 block font-medium'><i class="fa-solid fa-shield-halved"></i> 联邦法保护：受联邦法 86-272 保护，可免交此类税。</span>` : ""),
+            nexus_en: `<b>Economic Nexus:</b> Annual gross sales into the state reach or exceed <b>${threshold_en}</b>.` + (pl86272 ? `<br><span class='text-emerald-700 text-xs mt-1.5 block font-medium'><i class="fa-solid fa-shield-halved"></i> Federal Protection: Protected by PL 86-272, exempt from this tax.</span>` : ""),
             rate: rate,
-            calc: formula(calcFormula) + extraNote,
-            deadline: "通常为公司财年结束后第 4 个月的 15 日前 (如 4月15日)。",
-            penalty: "晚交及晚申报通常各按每月 5% 累计，上限最高可达未缴税款的 25%。"
+            calc_zh: formula(calcFormula_zh) + extraNote_zh,
+            calc_en: formula(calcFormula_en) + extraNote_en,
+            deadline_zh: "通常为财年结束后第4个月15日。", deadline_en: "Usually the 15th day of the 4th month after fiscal year end.",
+            penalty_zh: "晚交及晚申报通常各按每月5%累计，最高25%。", penalty_en: "Usually 5% per month for late filing/payment, up to 25% max."
         });
 
-        const getGenericSalesTax = (stateName, salesThreshold, certName = "多州通用转售证明 (MTC)", certLink = "https://www.mtc.gov/wp-content/uploads/2023/01/Unif-Resale-Cert-revised-10-14-22.pdf") => ({
-            type: "销售及使用税 (Sales & Use Tax)",
-            nexus: `<b>关联门槛 (Sales Tax Nexus)：</b>年度本州总销售额达到或超过 <b>${salesThreshold}</b>。<br><span class='text-amber-600 text-xs mt-1.5 block font-medium'><i class="fa-solid fa-circle-info"></i> 注意：B2B 免税批发金额同样计入门槛，达标即触发注册义务。</span>`,
-            rate: "州级基础税率 + 地方附加税",
-            calc: formula("应纳税额 = 州内应税销售总额 × 综合税率") + `<span class='font-semibold text-indigo-600 block mb-1 mt-2'>实务操作：</span>必须注册税号，交易时向客户索要 <b>${certName}</b>，按期提交<b>零申报 (Zero Return)</b>。`,
-            deadline: "依州税务局指派频率 (季报/年报)。",
-            penalty: "未零申报面临 $50-$100 晚申报罚金。",
-            cert: { name: certName, link: certLink }
+        const getGenericSalesTax = (stateName_zh, stateName_en, salesThreshold, certName_zh = "多州通用转售证明", certName_en = "Multi-State Resale Cert (MTC)", certLink = "https://www.mtc.gov/wp-content/uploads/2023/01/Unif-Resale-Cert-revised-10-14-22.pdf") => ({
+            type_zh: "销售及使用税", type_en: "Sales & Use Tax", icon: "fa-cash-register text-slate-400",
+            nexus_zh: `<b>关联门槛：</b>年度本州总销售额达到或超过 <b>${salesThreshold}</b>。<br><span class='text-amber-600 text-xs mt-1.5 block font-medium'><i class="fa-solid fa-circle-info"></i> 注意：B2B免税批发额同样计入门槛。</span>`,
+            nexus_en: `<b>Economic Nexus:</b> Annual gross sales reach or exceed <b>${salesThreshold}</b>.<br><span class='text-amber-600 text-xs mt-1.5 block font-medium'><i class="fa-solid fa-circle-info"></i> Note: B2B exempt wholesale amounts count towards this threshold.</span>`,
+            rate: "州税 + 地方税",
+            calc_zh: formula("应纳税额 = 应税销售总额 × 综合税率") + `<span class='font-semibold text-indigo-600 block mb-1 mt-2'>实务操作：</span>必须注册税号，收集 <b>${certName_zh}</b>，并按时进行零申报。`,
+            calc_en: formula("Tax Due = Taxable Sales × Combined Rate") + `<span class='font-semibold text-indigo-600 block mb-1 mt-2'>Practice:</span> Must register, collect <b>${certName_en}</b>, and file zero returns.`,
+            deadline_zh: "依州指派频率 (季报或年报)。", deadline_en: "Assigned frequency (Quarterly/Annually).",
+            penalty_zh: "未零申报面临 $50-$100 晚申报罚金。", penalty_en: "$50-$100 penalty for missing zero returns.",
+            cert_zh: { name: certName_zh, link: certLink }, cert_en: { name: certName_en, link: certLink }
         });
 
-        const inventoryTax = (rate, calcText, note) => ({
-            type: "商业库存税 / 财产税 (Business Personal Property Tax)",
-            nexus: "<b>关联门槛：</b>在本州拥有实物库存（如海外仓、3PL、FBA仓、自有仓库）。<br><span class='text-purple-700 text-xs mt-1.5 block font-medium'><i class='fa-solid fa-triangle-exclamation'></i> 财产税性质，完全不受 PL 86-272 保护！</span>",
+        const inventoryTax = (rate, calcText_zh, calcText_en, note_zh, note_en) => ({
+            type_zh: "商业库存财产税", type_en: "Business Inventory Tax", icon: "fa-boxes-stacked text-purple-500",
+            nexus_zh: "<b>关联门槛：</b>在本州拥有实物库存 (如海外仓、第三方代发仓、亚马逊 FBA)。<br><span class='text-purple-700 text-xs mt-1.5 block font-medium'><i class='fa-solid fa-triangle-exclamation'></i> 财产税性质，不受联邦法 86-272 保护！</span>",
+            nexus_en: "<b>Nexus:</b> Owning physical inventory in the state (e.g. 3PL, FBA).<br><span class='text-purple-700 text-xs mt-1.5 block font-medium'><i class='fa-solid fa-triangle-exclamation'></i> Property tax nature, NOT protected by PL 86-272!</span>",
             rate: rate,
-            calc: formula(calcText) + note,
-            deadline: "多为每年 1月1日 评估价值，3月至4月 提交申报 (Rendition)。",
-            penalty: "未申报或低报通常面临 10% 评估价值罚金。"
+            calc_zh: formula(calcText_zh) + note_zh, calc_en: formula(calcText_en) + note_en,
+            deadline_zh: "多为1月1日评估，3月至4月提交财产申报。", deadline_en: "Assessed Jan 1st, renditions typically due March-April.",
+            penalty_zh: "未申报通常面临 10% 罚款。", penalty_en: "10% penalty on assessed value for failure to file."
         });
 
         const nomadSalesTax = () => ({
-            type: "销售及使用税 (Sales Tax)",
-            nexus: "无。本州不征收州级销售税。", rate: "0%", calc: "无需注册销售税号，也无需收集免税证明。", deadline: "-", penalty: "-"
+            type_zh: "销售及使用税", type_en: "Sales & Use Tax", icon: "fa-cash-register text-slate-400",
+            nexus_zh: "无。本州免销售税。", nexus_en: "None. State does not impose sales tax.",
+            rate: "0%",
+            calc_zh: "无需注册销售税号，也无需收集免税证明。", calc_en: "No sales tax permit or resale certificates required.",
+            deadline_zh: "-", deadline_en: "-", penalty_zh: "-", penalty_en: "-"
         });
 
         const stateNamesMap = {
@@ -229,175 +281,178 @@
             "OR": ["俄勒冈", "Oregon"], "PA": ["宾夕法尼亚", "Pennsylvania"], "RI": ["罗德岛", "Rhode Island"],
             "SC": ["南卡罗来纳", "South Carolina"], "SD": ["南达科他", "South Dakota"], "TN": ["田纳西", "Tennessee"],
             "TX": ["德克萨斯", "Texas"], "UT": ["犹他", "Utah"], "VT": ["佛蒙特", "Vermont"],
-            "VA": ["弗吉尼亚", "Virginia"], "WA": ["华盛顿州(西海岸)", "Washington"], "WV": ["西弗吉尼亚", "West Virginia"],
-            "WI": ["威斯康星", "Wisconsin"], "WY": ["怀俄明", "Wyoming"], "DC": ["华盛顿特区(首都)", "Washington D.C."]
+            "VA": ["弗吉尼亚", "Virginia"], "WA": ["华盛顿州 (西海岸)", "Washington"], "WV": ["西弗吉尼亚", "West Virginia"],
+            "WI": ["威斯康星", "Wisconsin"], "WY": ["怀俄明", "Wyoming"], "DC": ["华盛顿特区 (首都)", "Washington D.C."]
         };
 
         const taxDatabase = {};
 
-        // Generate default setup for all states to ensure 100% coverage
         Object.keys(stateNamesMap).forEach(abbr => {
             taxDatabase[abbr] = {
-                name_cn: stateNamesMap[abbr][0],
-                name_en: stateNamesMap[abbr][1],
-                abbr: abbr,
-                note: "标准单/多因子分配州，批发贸易如受 PL 86-272 保护，建议仅作零申报或最低额度申报。",
-                tags: ["标准CIT"],
+                name_zh: stateNamesMap[abbr][0], name_en: stateNamesMap[abbr][1], abbr: abbr,
+                note_zh: "标准分配州，跨州批发受联邦法 86-272 保护，建议按规定进行零申报或最低额度申报。",
+                note_en: "Standard apportionment state. Wholesale is protected by PL 86-272. File zero or minimum tax returns.",
+                tags_zh: ["标准企业所得税"], tags_en: ["Standard CIT"],
                 taxes: [
-                    cit("依州而异", "$100,000", "CIT = [联邦应税收入] × 州分摊比 × 州税率"),
-                    getGenericSalesTax(stateNamesMap[abbr][0], "$100,000")
+                    cit("依州而异", "$100,000", "$100,000", "企业所得税 = [联邦应税收入] × 州分摊比 × 州税率", "CIT = [Federal Taxable Income] × Apportionment × Rate"),
+                    getGenericSalesTax(stateNamesMap[abbr][0], stateNamesMap[abbr][1], "$100,000")
                 ]
             };
         });
 
-        
-        // NOMAD States (No Sales Tax)
-        ["AK", "DE", "MT", "NH", "OR"].forEach(abbr => {
-            taxDatabase[abbr].taxes[1] = nomadSalesTax();
-        });
+        // Specific overrides for Nomad states
+        ["AK", "DE", "MT", "NH", "OR"].forEach(abbr => { taxDatabase[abbr].taxes[1] = nomadSalesTax(); });
 
-        // specific overrides
+        // Specific Overrides for core complex states
         taxDatabase["WA"] = {
-            name_cn: "华盛顿州(西海岸)", name_en: "Washington State", abbr: "WA", 
-            note: "【重要：无企业所得税 (No CIT)】。但对总营业额征收 B&O 税，打击利润率，C-Corp极大合规成本。", 
-            tags: ["无所得税", "🚨重点: B&O总收入税"], 
+            name_zh: "华盛顿州 (西海岸)", name_en: "Washington", abbr: "WA", 
+            note_zh: "【重要：无企业所得税】。对总营业额征收商业和职业税，极大打击利润率，C-Corp 合规成本极高。", 
+            note_en: "【IMPORTANT: No CIT】 Levy B&O Tax on gross receipts, impacting margins heavily. High compliance cost.", 
+            tags_zh: ["无所得税", "🚨重点: 总收入税"], tags_en: ["No Income Tax", "🚨Gross Receipts Tax"], 
             taxes: [
-                { type: "商业和职业税 (B&O Tax - 总收入税)", nexus: "<b>经济关联门槛：</b>年度发往本州的销售总额超 <b>$100,000</b>。<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'><i class='fa-solid fa-triangle-exclamation'></i> 警告：总收入税性质，联邦 PL 86-272 豁免完全无效！必须缴纳。</span>", rate: "批发商 (Wholesaler) 税率 <b>0.484%</b>。", calc: formula("应纳税金 = 州内总销售收入 (严禁扣除销货成本) × 0.484%"), deadline: "按月/季/年度申报", penalty: "晚交罚款按 9%、19%、29% 阶梯暴增。" },
-                getGenericSalesTax("华盛顿", "$100,000", "华盛顿州转售说明", "https://dor.wa.gov/taxes-rates/retail-sales-tax/reseller-permits")
+                { type_zh: "商业和职业税", type_en: "Business & Occupation Tax (B&O)", icon: "fa-chart-pie text-rose-500",
+                  nexus_zh: "<b>经济关联门槛：</b>年度发往本州销售额超过 <b>$100,000</b>。<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'><i class='fa-solid fa-triangle-exclamation'></i> 总收入税性质，联邦豁免无效！</span>", 
+                  nexus_en: "<b>Nexus:</b> Annual gross sales into state exceed <b>$100,000</b>.<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'><i class='fa-solid fa-triangle-exclamation'></i> Gross receipts nature, PL 86-272 protection INVALID!</span>", 
+                  rate: "0.484%", 
+                  calc_zh: formula("应纳税额 = 州内总收入 (严禁扣除销货成本) × 0.484%"), calc_en: formula("Tax = Gross WA Receipts (NO COGS DEDUCTION) × 0.484%"), 
+                  deadline_zh: "按月、按季或按年申报", deadline_en: "Monthly/Quarterly/Annually", penalty_zh: "罚款按 9%、19%、29% 阶梯递增。", penalty_en: "Penalties scale 9%, 19%, 29%." },
+                getGenericSalesTax("华盛顿", "Washington", "$100,000", "华盛顿州转售说明", "WA Reseller Permit Info", "https://dor.wa.gov/taxes-rates/retail-sales-tax/reseller-permits")
             ]
         };
 
         taxDatabase["TX"] = {
-            name_cn: "德克萨斯州", name_en: "Texas", abbr: "TX", 
-            note: "无所得税。但有特许经营税 (Margin Tax)，且是对商业库存征收重税的州！", 
-            tags: ["无所得税", "🚨Margin Tax特许税", "📦重税: 有库存税"], 
+            name_zh: "德克萨斯州", name_en: "Texas", abbr: "TX", 
+            note_zh: "无企业所得税。征收特许经营税，且是对商业库存征收重税的州！", 
+            note_en: "No corporate income tax. Levy Margin Tax and heavy Business Inventory Tax!", 
+            tags_zh: ["无所得税", "🚨特许经营税", "📦重税: 有库存税"], tags_en: ["No Income Tax", "🚨Margin Tax", "📦Heavy Inventory Tax"], 
             taxes: [
-                { type: "特许经营税 / 毛利税 (Franchise Tax)", nexus: "在德州有收入，且全美总收入超 <b>$2.47M</b> (2024年)。<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'>特许经营性质，PL 86-272 豁免无效。</span>", rate: "批发商 <b>0.375%</b>。", calc: formula("应交税 = (全美总收入 - COGS) × (德州收入÷全美收入) × 0.375%") + "不到 2.47M 免税，但<b>强制提交无税申报 (No Tax Due Report)</b>，否则罚款并吊销执照。", deadline: "每年 5月 15日", penalty: "晚报固定罚 $50 加欠款 5%-10%。" },
-                inventoryTax("约 1.5%-3.0% (依县而异)", "库存税金 = 1月1日库存评估价值 × 地方税率", "在TX有仓储必须在 4月15日 前提交 Rendition。"),
-                getGenericSalesTax("德克萨斯", "$500,000", "德州转售证明 (01-339)", "https://comptroller.texas.gov/forms/01-339.pdf")
+                { type_zh: "特许经营税", type_en: "Franchise Tax (Margin Tax)", icon: "fa-file-invoice-dollar text-rose-500",
+                  nexus_zh: "全美总收入超过 <b>$2,470,000</b>。<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'>特许经营性质，联邦豁免无效。</span>", 
+                  nexus_en: "Total US Revenue exceeds <b>$2.47M</b>.<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'>Franchise tax nature, PL 86-272 INVALID.</span>", 
+                  rate: "0.375%", 
+                  calc_zh: formula("应纳税额 = (全美总收入 - 销货成本) × 州分摊比 × 0.375%") + "全美营业额不到 247万美元免税，但<b>强制提交无税申报</b>。", 
+                  calc_en: formula("Tax = (Total Revenue - COGS) × Apportionment × 0.375%") + "If under $2.47M, MUST still file No Tax Due Report.", 
+                  deadline_zh: "5月15日", deadline_en: "May 15", penalty_zh: "晚报固定罚款 $50。", penalty_en: "$50 flat penalty for late filing." },
+                inventoryTax("约 1.5% - 3.0%", "库存税金 = 1月1日库存评估价值 × 地方税率", "Tax = Assessed Inventory Value on Jan 1 × Local Rate", "在德州有仓储必须在4月15日前提交财产申报。", "Must file Rendition by April 15 if holding inventory in TX."),
+                getGenericSalesTax("德克萨斯", "Texas", "$500,000", "德州转售证明 (01-339)", "TX Resale Cert (01-339)", "https://comptroller.texas.gov/forms/01-339.pdf")
             ]
         };
 
         taxDatabase["GA"] = {
-            name_cn: "佐治亚州", name_en: "Georgia", abbr: "GA", 
-            note: "作为公司总部所在地，触发所有税制纳税义务。极度依赖 Freeport 豁免。", 
-            tags: ["🏢总部", "无豁免保护", "📦有库存税"], 
+            name_zh: "佐治亚州", name_en: "Georgia", abbr: "GA", 
+            note_zh: "作为公司总部所在地，触发所有税制纳税义务。极度依赖自由港豁免。", 
+            note_en: "As HQ state, full tax nexus is triggered. Highly dependent on Freeport Exemption for inventory.", 
+            tags_zh: ["🏢总部", "无豁免保护", "📦有库存税"], tags_en: ["🏢HQ", "No PL86-272", "📦Inventory Tax"], 
             taxes: [
-                cit("5.75%", "物理存在 (总部)", "CIT = [联邦应税收入] × 5.75%", false, "总部无法使用 PL 86-272。"),
-                { type: "净资产税 (Net Worth Tax)", nexus: "在GA注册实体 (总部天然满足)。", rate: "最高$5000", calc: formula("税金 = 查表 (基于净资产)"), deadline: "4月15日", penalty: "晚交10%加利息" },
-                inventoryTax("约 1.0%-1.5%", "应纳税金 = (库存评估价值 × 40%) × 地方税率", "<span class='font-bold text-purple-700 block mb-1 mt-2'><i class='fa-solid fa-bell'></i> 亚特兰大总部免税诀窍：</span>若货物主要发往外州，可向县政府申请最高 100% 的 <b>Freeport Exemption</b>。<b>必须在4月1日前递交申请</b>，逾期豁免大打折扣！"),
-                getGenericSalesTax("佐治亚", "物理存在", "佐治亚免税表 (ST-5)", "https://dor.georgia.gov/st-5-sales-tax-certificate-exemption")
-            ]
-        };
-
-        taxDatabase["CA"] = {
-            name_cn: "加利福尼亚州", name_en: "California", abbr: "CA", 
-            note: "大额销售触发 Nexus，伴随高额罚金与 $800 固定最低税。", 
-            tags: ["$71万门槛", "🚨最低税$800"], 
-            taxes: [
-                { type: "特许/所得税 (Franchise Tax)", nexus: "在CA流水超 <b>$711,538</b> (随通胀调)。<br><span class='text-emerald-700 text-xs mt-1.5 block font-medium'><i class='fa-solid fa-shield-halved'></i> 受 PL 86-272 保护免交8.84%利润税，但固定税不可免。</span>", rate: "利润的 8.84% 或 固定 <b>$800</b>。", calc: formula("应纳税额 = MAX( [CA利润]×8.84%, $800 )") + "主张联邦豁免时，每年仍须交 $800 并申报。", deadline: "第4个月15日 (次年必须预缴)", penalty: "晚交未付税款5%+每月0.5%。" },
-                getGenericSalesTax("加利福尼亚", "$500,000", "加州转售证明 (CDTFA-230)", "https://www.cdtfa.ca.gov/formspubs/cdtfa230.pdf")
-            ]
-        };
-
-        taxDatabase["NY"] = {
-            name_cn: "纽约州", name_en: "New York", abbr: "NY", 
-            note: "高达 $100万 的门槛，强制性的固定最低税体系。", 
-            tags: ["$1M高门槛", "三轨税制"], 
-            taxes: [
-                { type: "特许经营税 (Franchise Tax)", nexus: "在纽约州流水超 <b>$1,138,000</b>。", rate: "7.25% 或 固定税额", calc: formula("应交金 = MAX( [NY利润×7.25%], [资本费], [固定美元最低税] )") + "豁免利润后，仍须根据在NY流水交固定最低税。", deadline: "第4个月15日", penalty: "最高25%" },
-                getGenericSalesTax("纽约", "$500,000 且 100笔", "纽约转售证明 (ST-120)", "https://www.tax.ny.gov/pdf/current_forms/st/st120_fill_in.pdf")
+                cit("5.75%", "物理存在 (总部)", "Physical Presence (HQ)", "企业所得税 = [联邦应税收入] × 5.75%", "CIT = [Federal Taxable Income] × 5.75%", false, "总部无法使用联邦法保护。", "HQ cannot claim PL 86-272."),
+                { type_zh: "净资产税", type_en: "Net Worth Tax", icon: "fa-chart-pie text-rose-500",
+                  nexus_zh: "在佐治亚州注册实体 (总部天然满足)。", nexus_en: "Registered entity in GA (HQ meets this).", rate: "最高 $5000", 
+                  calc_zh: formula("税金 = 查表 (基于净资产额度)"), calc_en: formula("Tax = Check Brackets (based on Net Worth)"), 
+                  deadline_zh: "4月15日", deadline_en: "April 15", penalty_zh: "晚交产生 10% 罚款", penalty_en: "10% penalty for late payment" },
+                inventoryTax("约 1.0% - 1.5%", "应纳税金 = (库存评估价值 × 40%) × 地方税率", "Tax = (Assessed Value × 40%) × Local Rate", "<span class='font-bold text-purple-700 block mt-2'>亚特兰大总部免税诀窍：必须在4月1日前递交 <b>自由港豁免</b>，发往外州的货物可免缴该财产税！</span>", "<span class='font-bold text-purple-700 block mt-2'>HQ Trick: MUST file <b>Freeport Exemption</b> by April 1st to waive tax on goods shipped out-of-state!</span>"),
+                getGenericSalesTax("佐治亚", "Georgia", "物理存在", "佐治亚免税表 (ST-5)", "GA Resale Cert (ST-5)", "https://dor.georgia.gov/st-5-sales-tax-certificate-exemption")
             ]
         };
 
         taxDatabase["OH"] = {
-            name_cn: "俄亥俄州", name_en: "Ohio", abbr: "OH", 
-            note: "无所得税。以商业活动税 (CAT) 取代，是典型的总收入税，批发商极易中招。", 
-            tags: ["无所得税", "🚨重点: CAT税"], 
+            name_zh: "俄亥俄州", name_en: "Ohio", abbr: "OH", 
+            note_zh: "无所得税。商业活动税是纯正的总收入税，批发商极易中招。", 
+            note_en: "No CIT. Commercial Activity Tax (CAT) is a gross receipts tax, hitting wholesalers hard.", 
+            tags_zh: ["无所得税", "🚨重点: 商业活动税"], tags_en: ["No Income Tax", "🚨CAT Tax"], 
             taxes: [
-                { type: "商业活动税 (Commercial Activity Tax / CAT)", nexus: "在OH年度总流水超 <b>$3,000,000</b> (2024新规)。<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'><i class='fa-solid fa-triangle-exclamation'></i> 总收入税，PL 86-272 无效。</span>", rate: "<b>0.26%</b>", calc: formula("CAT税额 = (俄亥俄总收入 - $300万免税额) × 0.26%"), deadline: "季度后次月10日 (2,5,8,11月)", penalty: "10%罚款" },
-                getGenericSalesTax("俄亥俄", "$100,000 且 200笔")
+                { type_zh: "商业活动税", type_en: "Commercial Activity Tax (CAT)", icon: "fa-chart-pie text-rose-500",
+                  nexus_zh: "在俄亥俄年度总流水超过 <b>$3,000,000</b>。<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'>总收入税，联邦豁免无效。</span>", 
+                  nexus_en: "Annual gross receipts in OH exceed <b>$3,000,000</b>.<br><span class='text-rose-600 text-xs mt-1.5 block font-medium'>Gross receipts tax, PL 86-272 INVALID.</span>", 
+                  rate: "0.26%", 
+                  calc_zh: formula("应纳税额 = (俄亥俄总收入 - 300万美元免税额) × 0.26%"), calc_en: formula("CAT Tax = (OH Gross Receipts - $3M exemption) × 0.26%"), 
+                  deadline_zh: "季度结束后次月10日", deadline_en: "10th day of month following quarter", penalty_zh: "10% 罚款", penalty_en: "10% penalty" },
+                getGenericSalesTax("俄亥俄", "Ohio", "$100,000")
+            ]
+        };
+        
+        taxDatabase["CA"] = {
+            name_zh: "加利福尼亚州", name_en: "California", abbr: "CA", 
+            note_zh: "伴随高额罚金与 $800 固定最低特许经营税。", note_en: "High penalties and $800 minimum franchise tax.", 
+            tags_zh: ["$71万门槛", "🚨$800 最低特许税"], tags_en: ["$711k Threshold", "🚨$800 Min Franchise Tax"], 
+            taxes: [
+                { type_zh: "特许经营及所得税", type_en: "Franchise & Income Tax", icon: "fa-landmark text-emerald-600",
+                  nexus_zh: "加州流水超过 <b>$711,538</b>。受联邦法保护可免交比例所得税，但固定最低特许税不可免。", 
+                  nexus_en: "Gross receipts exceed <b>$711,538</b>. PL 86-272 exempts net income portion, but NOT the min franchise tax.", 
+                  rate: "8.84% 或 $800", 
+                  calc_zh: formula("应纳税额 = 取大值( [加州利润] × 8.84%, $800 )") + "主张联邦法豁免时，仍必须缴纳 $800 的最低特许经营税。", calc_en: formula("Tax = MAX( [CA Net Income]×8.84%, $800 )") + "Must pay the $800 minimum franchise tax even if claiming PL 86-272.", 
+                  deadline_zh: "第4个月15日 (次年必须提前预缴)", deadline_en: "15th of 4th month (Requires prepayments)", penalty_zh: "未付税款的 5% + 每月 0.5%", penalty_en: "5% + 0.5%/month of unpaid tax" },
+                getGenericSalesTax("加利福尼亚", "California", "$500,000", "加州转售证明 (CDTFA-230)", "CA Resale Cert (CDTFA-230)", "https://www.cdtfa.ca.gov/formspubs/cdtfa230.pdf")
+            ]
+        };
+
+        taxDatabase["NY"] = {
+            name_zh: "纽约州", name_en: "New York", abbr: "NY", 
+            note_zh: "高达 100万美元 的门槛，采用强制性的固定最低特许经营税体系。", note_en: "High $1M threshold with a mandatory fixed minimum franchise tax system.", 
+            tags_zh: ["$100万门槛", "🚨固定最低特许税"], tags_en: ["$1M Threshold", "🚨Fixed Min Franchise Tax"], 
+            taxes: [
+                { type_zh: "特许经营税", type_en: "Franchise Tax", icon: "fa-landmark text-emerald-600",
+                  nexus_zh: "纽约州流水超过 <b>$1,138,000</b>。", nexus_en: "NY Gross receipts exceed <b>$1,138,000</b>.", 
+                  rate: "7.25% 或 固定金额", 
+                  calc_zh: formula("应纳税额 = 取大值( [利润 × 7.25%], [固定最低特许税金额] )"), calc_en: formula("Tax = MAX( [Net Income×7.25%], [Fixed Min Franchise Tax] )"), 
+                  deadline_zh: "第4个月15日", deadline_en: "15th of 4th month", penalty_zh: "最高 25%", penalty_en: "Up to 25%" },
+                getGenericSalesTax("纽约", "New York", "$500,000 且 100笔", "纽约转售证明 (ST-120)", "NY Resale Cert (ST-120)", "https://www.tax.ny.gov/pdf/current_forms/st/st120_fill_in.pdf")
             ]
         };
         
         taxDatabase["OR"] = {
-            name_cn: "俄勒冈州", name_en: "Oregon", abbr: "OR", 
-            note: "免销售税。但企业活动税 (CAT) 是针对超百万流水的隐蔽税种。", 
-            tags: ["免销售税", "🚨有CAT总收入税"], 
+            name_zh: "俄勒冈州", name_en: "Oregon", abbr: "OR", 
+            note_zh: "免销售税。但企业活动税是隐蔽的总收入税种。", note_en: "No sales tax. Corporate Activity Tax (CAT) applies to receipts.", 
+            tags_zh: ["免销售税", "🚨企业活动税"], tags_en: ["No Sales Tax", "🚨CAT Tax"], 
             taxes: [
-                cit("6.6% - 7.6%", "$100,000", "CIT = [利润] × 分摊比 × 7.6% (受 PL 86-272 保护)"),
-                { type: "企业活动税 (Corporate Activity Tax / CAT)", nexus: "在OR流水超 <b>$1,000,000</b> (不受PL 86-272保护)。", rate: "0.57%", calc: formula("CAT税额 = $250 + (OR应税收入 - 35% COGS) × 0.57%"), deadline: "4月15日", penalty: "5%" },
+                cit("7.6%", "$100,000", "$100,000", "企业所得税 = [利润] × 分摊比 × 7.6% (受联邦法保护)", "CIT = [Net] × Apportionment × 7.6% (Protected by PL 86-272)"),
+                { type_zh: "企业活动税", type_en: "Corporate Activity Tax (CAT)", icon: "fa-chart-pie text-rose-500",
+                  nexus_zh: "在俄勒冈流水超过 <b>$1,000,000</b> (不受联邦法保护)。", nexus_en: "OR Gross receipts exceed <b>$1,000,000</b> (NOT protected by PL 86-272).", 
+                  rate: "0.57%", 
+                  calc_zh: formula("应纳税额 = $250 + (俄勒冈应税收入 - 35% 销货成本) × 0.57%"), calc_en: formula("CAT = $250 + (OR Taxable Receipts - 35% COGS) × 0.57%"), 
+                  deadline_zh: "4月15日", deadline_en: "April 15", penalty_zh: "5%", penalty_en: "5%" },
                 nomadSalesTax()
             ]
         };
 
-        // 更新特例州：肯塔基和路易斯安那的 Resale Certificate 链接
-        taxDatabase["KY"].taxes[1] = getGenericSalesTax("肯塔基", "$100,000", "肯塔基转售证明 (51A105)", "https://revenue.ky.gov/Forms/51A105%20(1-23).pdf");
-        taxDatabase["LA"].taxes[1] = getGenericSalesTax("路易斯安那", "$100,000", "路易斯安那LaTAP在线申请", "https://revenue.louisiana.gov/businesses/general-resources/resale-certificate/");
+        taxDatabase["KY"].taxes[1] = getGenericSalesTax("肯塔基", "Kentucky", "$100,000", "肯塔基转售证明 (51A105)", "KY Resale Cert (51A105)", "https://revenue.ky.gov/Forms/51A105%20(1-23).pdf");
+        taxDatabase["LA"].taxes[1] = getGenericSalesTax("路易斯安那", "Louisiana", "$100,000", "在线申请", "Apply via LaTAP", "https://revenue.louisiana.gov/businesses/general-resources/resale-certificate/");
 
-        // Inject Inventory Tax tags for specific states
+        // Inject Inventory Tax
         ["KY", "AR", "LA", "MS", "OK", "WV"].forEach(abbr => {
-            taxDatabase[abbr].tags.push("📦有库存税");
-            taxDatabase[abbr].note = "如果您在本州设有仓库/库存，必须按年缴纳商业有形财产税（不受 PL 86-272 保护）。";
-            taxDatabase[abbr].taxes.splice(1, 0, inventoryTax("约 1% - 2%", "税金 = 库存评估价值 × 地方综合税率", "务必在第一季度向当地评估办公室提交 Rendition。"));
+            taxDatabase[abbr].tags_zh.push("📦有库存税");
+            taxDatabase[abbr].tags_en.push("📦Inventory Tax");
+            taxDatabase[abbr].note_zh = "如果您在本州设有仓库或库存，必须按年缴纳商业有形财产税（不受联邦法豁免保护）。";
+            taxDatabase[abbr].note_en = "If you have warehouse/inventory in this state, you must pay Business Personal Property Tax annually (NOT protected by PL 86-272).";
+            taxDatabase[abbr].taxes.splice(1, 0, inventoryTax("约 1%-2%", "税金 = 库存评估价值 × 综合税率", "Tax = Assessed Value × Combined Rate", "务必在第一季度提交财产申报。", "Must file Rendition in Q1."));
         });
 
         const calendarData = {
             "01-15": [
-                { state: "全美", title: "C-Corp Q4 预缴所得税截止", type: "企业所得税", icon: "fa-landmark", color: "emerald" },
-                { state: "多数州", title: "年报及部分销售税 Q4 申报截止", type: "销售及使用税", icon: "fa-cash-register", color: "slate" }
+                { state: "ALL", title_zh: "Q4 预缴所得税截止", title_en: "Q4 Estimated Tax Due", type_zh: "企业所得税", type_en: "Income Tax", icon: "fa-landmark", color: "emerald" },
+                { state: "ALL", title_zh: "年报及部分 Q4 销售税", title_en: "Annual / Q4 Sales Tax Due", type_zh: "销售及使用税", type_en: "Sales Tax", icon: "fa-cash-register", color: "slate" }
             ],
-            "02-10": [
-                { state: "OH", title: "俄亥俄州 CAT 税 (上年Q4) 申报截止", type: "总收入税", icon: "fa-chart-pie", color: "rose" }
-            ],
-            "03-01": [
-                { state: "DE", title: "特拉华州特许经营税 (Franchise Tax) 截止", type: "特许经营税", icon: "fa-building", color: "blue" }
-            ],
-            "04-01": [
-                { state: "GA", title: "佐治亚州 Freeport Exemption (免库存税) 申请截止", type: "库存财产税", icon: "fa-boxes-stacked", color: "purple", note: "极其重要！亚特兰大总部逾期未申请将面临全额库存税。" }
-            ],
+            "02-10": [{ state: "OH", title_zh: "商业活动税 (上年Q4) 申报", title_en: "CAT Tax (Prev Q4) Due", type_zh: "总收入税", type_en: "Gross Receipts", icon: "fa-chart-pie", color: "rose" }],
+            "03-01": [{ state: "DE", title_zh: "特许经营税截止", title_en: "Franchise Tax Due", type_zh: "特许经营税", type_en: "Franchise Tax", icon: "fa-building", color: "blue" }],
+            "04-01": [{ state: "GA", title_zh: "自由港豁免申请", title_en: "Freeport Exemption App", type_zh: "库存税", type_en: "Inventory Tax", icon: "fa-boxes-stacked", color: "purple", note_zh: "极其重要！亚特兰大总部逾期未申请将面临全额库存税。", note_en: "CRITICAL! HQ must apply to waive inventory property tax." }],
             "04-15": [
-                { state: "联邦", title: "C-Corp (1120表格) 联邦所得税申报截止", type: "企业所得税", icon: "fa-landmark", color: "emerald" },
-                { state: "多数州", title: "绝大多数州 (CA, NY, GA等) CIT 申报截止日", type: "企业所得税", icon: "fa-landmark", color: "emerald" },
-                { state: "CA", title: "加州首季预缴 及 $800 最低特许税必须缴纳", type: "特许经营税", icon: "fa-gavel", color: "rose", note: "延期申报(Extension)只能延期表格，不能延期交钱，否则重罚。" },
-                { state: "TX", title: "德州商业库存清单 (Rendition) 申报截止", type: "库存财产税", icon: "fa-boxes-stacked", color: "purple" }
+                { state: "Federal", title_zh: "联邦所得税申报截止", title_en: "Federal Income Tax Due", type_zh: "企业所得税", type_en: "Income Tax", icon: "fa-landmark", color: "emerald" },
+                { state: "Many", title_zh: "绝大多数州所得税申报", title_en: "Most States CIT Due", type_zh: "企业所得税", type_en: "Income Tax", icon: "fa-landmark", color: "emerald" },
+                { state: "CA", title_zh: "$800 最低特许税缴纳", title_en: "$800 Min Tax Payment Due", type_zh: "特许经营税", type_en: "Franchise Tax", icon: "fa-gavel", color: "rose" },
+                { state: "TX", title_zh: "商业库存财产申报截止", title_en: "Inventory Rendition Due", type_zh: "库存税", type_en: "Inventory Tax", icon: "fa-boxes-stacked", color: "purple" }
             ],
-            "04-20": [
-                { state: "多数州", title: "Q1 销售及使用税申报截止", type: "销售及使用税", icon: "fa-cash-register", color: "slate" }
-            ],
-            "05-10": [
-                { state: "OH", title: "俄亥俄州 CAT 税 (本年Q1) 申报截止", type: "总收入税", icon: "fa-chart-pie", color: "rose" }
-            ],
-            "05-15": [
-                { state: "TX", title: "德州 Margin Tax (特许经营税) 申报截止", type: "特许经营税", icon: "fa-file-invoice-dollar", color: "rose", note: "免税阈值$2.47M以内也必须强制提交 No Tax Due 报告！" }
-            ],
-            "06-15": [
-                { state: "全美", title: "C-Corp Q2 预缴所得税截止", type: "企业所得税", icon: "fa-landmark", color: "emerald" }
-            ],
-            "07-20": [
-                { state: "多数州", title: "Q2 销售及使用税申报截止", type: "销售及使用税", icon: "fa-cash-register", color: "slate" }
-            ],
-            "08-10": [
-                { state: "OH", title: "俄亥俄州 CAT 税 (本年Q2) 申报截止", type: "总收入税", icon: "fa-chart-pie", color: "rose" }
-            ],
-            "09-15": [
-                { state: "全美", title: "C-Corp Q3 预缴所得税截止", type: "企业所得税", icon: "fa-landmark", color: "emerald" }
-            ],
-            "10-15": [
-                { state: "全美", title: "C-Corp (联邦及多数州) 延期申报最终截止日", type: "企业所得税", icon: "fa-landmark", color: "emerald" }
-            ],
-            "10-20": [
-                { state: "多数州", title: "Q3 销售及使用税申报截止", type: "销售及使用税", icon: "fa-cash-register", color: "slate" }
-            ],
-            "11-10": [
-                { state: "OH", title: "俄亥俄州 CAT 税 (本年Q3) 申报截止", type: "总收入税", icon: "fa-chart-pie", color: "rose" }
-            ],
-            "12-15": [
-                { state: "全美", title: "C-Corp Q4 联邦及多数州预缴款截止", type: "企业所得税", icon: "fa-landmark", color: "emerald" }
-            ]
+            "04-20": [{ state: "Many", title_zh: "Q1 销售税申报截止", title_en: "Q1 Sales Tax Due", type_zh: "销售及使用税", type_en: "Sales Tax", icon: "fa-cash-register", color: "slate" }],
+            "05-10": [{ state: "OH", title_zh: "商业活动税 (Q1) 申报", title_en: "CAT Tax (Q1) Due", type_zh: "总收入税", type_en: "Gross Receipts", icon: "fa-chart-pie", color: "rose" }],
+            "05-15": [{ state: "TX", title_zh: "特许经营税申报截止", title_en: "Margin Tax Due", type_zh: "特许经营税", type_en: "Franchise Tax", icon: "fa-file-invoice-dollar", color: "rose", note_zh: "免税阈值内也必须强制提交无税申报报告！", note_en: "Must file No Tax Due Report even if below threshold!" }],
+            "06-15": [{ state: "ALL", title_zh: "Q2 预缴所得税截止", title_en: "Q2 Estimated Tax Due", type_zh: "企业所得税", type_en: "Income Tax", icon: "fa-landmark", color: "emerald" }],
+            "07-20": [{ state: "Many", title_zh: "Q2 销售税申报截止", title_en: "Q2 Sales Tax Due", type_zh: "销售及使用税", type_en: "Sales Tax", icon: "fa-cash-register", color: "slate" }],
+            "08-10": [{ state: "OH", title_zh: "商业活动税 (Q2) 申报", title_en: "CAT Tax (Q2) Due", type_zh: "总收入税", type_en: "Gross Receipts", icon: "fa-chart-pie", color: "rose" }],
+            "09-15": [{ state: "ALL", title_zh: "Q3 预缴所得税截止", title_en: "Q3 Estimated Tax Due", type_zh: "企业所得税", type_en: "Income Tax", icon: "fa-landmark", color: "emerald" }],
+            "10-15": [{ state: "ALL", title_zh: "延期申报截止日", title_en: "Final Extension Deadline", type_zh: "企业所得税", type_en: "Income Tax", icon: "fa-landmark", color: "emerald" }],
+            "10-20": [{ state: "Many", title_zh: "Q3 销售税申报截止", title_en: "Q3 Sales Tax Due", type_zh: "销售及使用税", type_en: "Sales Tax", icon: "fa-cash-register", color: "slate" }],
+            "11-10": [{ state: "OH", title_zh: "商业活动税 (Q3) 申报", title_en: "CAT Tax (Q3) Due", type_zh: "总收入税", type_en: "Gross Receipts", icon: "fa-chart-pie", color: "rose" }],
+            "12-15": [{ state: "ALL", title_zh: "Q4 预缴款截止", title_en: "Q4 Prepayments Due", type_zh: "企业所得税", type_en: "Income Tax", icon: "fa-landmark", color: "emerald" }]
         };
         
-        // Tailwind class map for dynamic coloring guarantee
         const themeColors = {
             emerald: { badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500', note: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
             rose: { badge: 'bg-rose-100 text-rose-700', dot: 'bg-rose-500', note: 'bg-rose-50 text-rose-700 border-rose-100' },
@@ -407,60 +462,218 @@
             slate: { badge: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500', note: 'bg-slate-50 text-slate-700 border-slate-100' }
         };
 
+        let selectedStateKey = null; // Track selected state
+
         document.addEventListener('DOMContentLoaded', () => {
             const stateList = document.getElementById('stateList');
             const searchInput = document.getElementById('searchInput');
             const welcomeScreen = document.getElementById('welcomeScreen');
             const taxDisplayScreen = document.getElementById('taxDisplayScreen');
             const taxCardsContainer = document.getElementById('taxCardsContainer');
-            const tagContainer = document.getElementById('tagContainer');
             
-            // Drawer Elements
-            const sidebar = document.getElementById('sidebar');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            
-            // Modal Elements
-            const calendarModal = document.getElementById('calendarModal');
-            const openCalendarBtn = document.getElementById('openCalendarBtn');
-            const closeCalendarBtn = document.getElementById('closeCalendarBtn');
+            // i18n updater
+            function updateUILanguage() {
+                const dict = i18n[currentLang];
+                document.getElementById('ui-title').textContent = dict.title;
+                document.getElementById('ui-pl86272').innerHTML = dict.pl86272;
+                document.getElementById('ui-btnCalendar').textContent = dict.btnCalendar;
+                searchInput.placeholder = dict.searchPlaceholder;
+                document.getElementById('ui-selectState').innerHTML = dict.selectState;
+                document.getElementById('ui-welcomeTitle').textContent = dict.welcomeTitle;
+                document.getElementById('ui-welcomeDesc').innerHTML = dict.welcomeDesc;
+                
+                // Calendar UI
+                document.getElementById('ui-calHeader').innerHTML = `<div class="w-8 h-8 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 shadow-sm"><i class="fa-regular fa-calendar-check"></i></div>${dict.calHeader}`;
+                document.getElementById('resetMonthViewBtn').textContent = dict.calReset;
 
-            // Toggle Mobile Sidebar
-            function toggleSidebar() {
-                sidebar.classList.toggle('-translate-x-full');
-                sidebarOverlay.classList.toggle('hidden');
+                // Weekdays in Calendar
+                const daysGrid = document.getElementById('ui-daysGrid');
+                daysGrid.innerHTML = dict.days.map((day, i) => `<div class="text-xs font-semibold ${i===0?'text-rose-500':'text-slate-500'}">${day}</div>`).join('');
+
+                renderStateList(searchInput.value);
+                if (selectedStateKey) showStateData(selectedStateKey);
+                renderCalendar();
             }
-            
-            mobileMenuBtn.addEventListener('click', toggleSidebar);
-            closeSidebarBtn.addEventListener('click', toggleSidebar);
-            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            document.getElementById('langToggleBtn').addEventListener('click', () => {
+                currentLang = currentLang === 'zh' ? 'en' : 'zh';
+                document.getElementById('currentLangLabel').textContent = currentLang === 'zh' ? 'English' : '中文';
+                updateUILanguage();
+            });
+
+            // Mobile Drawer
+            function toggleSidebar() {
+                document.getElementById('sidebar').classList.toggle('-translate-x-full');
+                document.getElementById('sidebarOverlay').classList.toggle('hidden');
+            }
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleSidebar);
+            document.getElementById('closeSidebarBtn').addEventListener('click', toggleSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', toggleSidebar);
+
+            // Render Sidebar List
+            function renderStateList(filterText = '') {
+                stateList.innerHTML = '';
+                const sortedKeys = Object.keys(taxDatabase).sort((a, b) => {
+                    const pins = ["GA", "TX", "CA", "WA", "NY"];
+                    if(pins.includes(a) && !pins.includes(b)) return -1;
+                    if(!pins.includes(a) && pins.includes(b)) return 1;
+                    return a.localeCompare(b);
+                });
+
+                sortedKeys.forEach(key => {
+                    const data = taxDatabase[key];
+                    const searchStr = `${data.name_zh} ${data.name_en} ${data.abbr}`.toLowerCase();
+                    if (!searchStr.includes(filterText.toLowerCase())) return;
+
+                    const btn = document.createElement('button');
+                    const isSelected = selectedStateKey === key;
+                    btn.className = `w-full text-left px-4 py-3 rounded-xl transition-all duration-200 border flex items-center justify-between group ${isSelected ? 'bg-indigo-50 border-indigo-200' : 'border-transparent hover:bg-indigo-50 hover:border-indigo-100'}`;
+                    
+                    let warningIcon = "";
+                    if(data[`tags_${currentLang}`].some(t => t.includes("🚨") || t.includes("📦"))) {
+                        warningIcon = `<i class="fa-solid fa-circle-exclamation text-rose-400 text-xs ml-2"></i>`;
+                    }
+
+                    const displayName = currentLang === 'zh' ? data.name_zh : data.name_en;
+
+                    btn.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-600 font-bold flex items-center justify-center text-sm group-hover:bg-indigo-100 group-hover:text-indigo-700 transition-colors">${data.abbr}</span>
+                            <div class="ml-3">
+                                <span class="block font-medium text-slate-800 text-sm">${displayName} ${warningIcon}</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-indigo-400 text-sm"></i>
+                    `;
+                    
+                    btn.onclick = () => {
+                        selectedStateKey = key;
+                        renderStateList(searchInput.value); // Re-render to show selection
+                        if (window.innerWidth < 768) toggleSidebar();
+                        showStateData(key);
+                    };
+                    stateList.appendChild(btn);
+                });
+            }
+
+            function showStateData(stateKey) {
+                const data = taxDatabase[stateKey];
+                const dict = i18n[currentLang];
+                
+                document.getElementById('stateAbbr').textContent = data.abbr;
+                document.getElementById('stateTitle').textContent = currentLang === 'zh' ? data.name_zh : data.name_en;
+                document.getElementById('stateNote').innerHTML = data[`note_${currentLang}`];
+                
+                document.getElementById('tagContainer').innerHTML = data[`tags_${currentLang}`].map(tag => {
+                    let color = "bg-indigo-50 text-indigo-700 border-indigo-100";
+                    if (tag.includes("无") || tag.includes("免") || tag.includes("No")) color = "bg-emerald-50 text-emerald-700 border-emerald-100";
+                    if (tag.includes("🚨") || tag.includes("Min") || tag.includes("Gross")) color = "bg-rose-50 text-rose-700 border-rose-100";
+                    if (tag.includes("📦") || tag.includes("Inventory")) color = "bg-purple-50 text-purple-700 border-purple-100";
+                    return `<span class="px-3 py-1 rounded-full text-xs font-semibold border ${color}">${tag}</span>`;
+                }).join('');
+
+                taxCardsContainer.innerHTML = '';
+                
+                data.taxes.forEach((tax, index) => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in";
+                    card.style.animationDelay = `${index * 0.1}s`;
+
+                    let certHtml = "";
+                    const certData = tax[`cert_${currentLang}`];
+                    if (certData) {
+                        certHtml = `
+                            <div class="mt-5 pt-4 border-t border-slate-100/60">
+                                <a href="${certData.link}" target="_blank" class="inline-flex items-center text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-xl font-semibold transition-colors border border-indigo-100 shadow-sm">
+                                    <i class="fa-solid fa-file-pdf mr-2"></i>
+                                    ${dict.certBtn}${certData.name}
+                                </a>
+                            </div>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="bg-slate-50/80 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                                <div class="w-8 h-8 rounded bg-white flex items-center justify-center mr-3 shadow-sm border border-slate-200">
+                                    <i class="fa-solid ${tax.icon}"></i>
+                                </div>
+                                ${tax[`type_${currentLang}`]}
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+                                <div class="col-span-1 lg:col-span-2 bg-slate-50 border border-slate-200/60 rounded-xl p-5">
+                                    <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center">
+                                        <i class="fa-solid fa-link mr-2"></i> ${dict.nexusTitle}
+                                    </h4>
+                                    <p class="text-slate-700 text-sm leading-relaxed">${tax[`nexus_${currentLang}`]}</p>
+                                </div>
+                                <div class="space-y-6">
+                                    <div>
+                                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
+                                            <i class="fa-solid fa-percent text-slate-400 mr-2"></i> ${dict.rateTitle}
+                                        </h4>
+                                        <p class="text-slate-800 font-medium text-sm bg-slate-100/50 inline-block px-3 py-1.5 rounded-lg border border-slate-200">${tax.rate}</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
+                                            <i class="fa-solid fa-calculator text-slate-400 mr-2"></i> ${dict.calcTitle}
+                                        </h4>
+                                        <div class="text-slate-600 text-sm leading-relaxed">${tax[`calc_${currentLang}`]}</div>
+                                        ${certHtml}
+                                    </div>
+                                </div>
+                                <div class="space-y-6 lg:border-l border-slate-100 lg:pl-8">
+                                    <div>
+                                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
+                                            <i class="fa-regular fa-clock text-slate-400 mr-2"></i> ${dict.deadlineTitle}
+                                        </h4>
+                                        <p class="text-slate-700 text-sm bg-blue-50 text-blue-800 px-3 py-2 rounded-lg border border-blue-100">${tax[`deadline_${currentLang}`]}</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
+                                            <i class="fa-solid fa-gavel text-slate-400 mr-2"></i> ${dict.penaltyTitle}
+                                        </h4>
+                                        <p class="text-slate-600 text-sm flex items-start">
+                                            <i class="fa-solid fa-triangle-exclamation text-rose-400 mt-1 mr-2 text-xs"></i>
+                                            ${tax[`penalty_${currentLang}`]}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    taxCardsContainer.appendChild(card);
+                });
+
+                welcomeScreen.classList.add('hidden');
+                taxDisplayScreen.classList.remove('hidden');
+                taxDisplayScreen.classList.add('flex');
+            }
 
             let currentDate = new Date();
             let displayMonth = currentDate.getMonth(); 
             let displayYear = currentDate.getFullYear();
             let selectedDateStr = null; 
 
-            const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-
             function initCalendar() {
-                // 如果当前月份没有重要的税务事件，默认跳转到繁忙的 4月（税季）
                 const monthStr = String(displayMonth + 1).padStart(2, '0');
                 const hasEvents = Object.keys(calendarData).some(key => key.startsWith(monthStr));
-                if (!hasEvents) displayMonth = 3; // 4月 (0-indexed)
+                if (!hasEvents) displayMonth = 3; // Default to April
                 renderCalendar();
             }
 
             function renderCalendar() {
+                const dict = i18n[currentLang];
                 const grid = document.getElementById('calendarGrid');
                 grid.innerHTML = '';
-                document.getElementById('currentMonthYear').textContent = `${displayYear}年 ${monthNames[displayMonth]}`;
+                document.getElementById('currentMonthYear').textContent = `${dict.months[displayMonth]} ${displayYear}`;
 
                 const firstDay = new Date(displayYear, displayMonth, 1).getDay();
                 const daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
                 const today = new Date();
 
-                // 填补月前的空白天数
                 for (let i = 0; i < firstDay; i++) {
                     const emptyCell = document.createElement('div');
                     emptyCell.className = "p-2";
@@ -503,7 +716,7 @@
                         events.slice(0, 3).forEach(ev => {
                             const dot = document.createElement('div');
                             const colorClass = isSelected ? 'bg-white opacity-80' : themeColors[ev.color].dot;
-                            dot.className = `w-1.5 h-1.5 rounded-full ${colorClass}`;
+                            dot.className = `w-1 h-1 md:w-1.5 md:h-1.5 rounded-full ${colorClass}`;
                             dotContainer.appendChild(dot);
                         });
                         dayCell.appendChild(dotContainer);
@@ -516,30 +729,28 @@
                             renderDateDetails(dateKey);
                         }
                     };
-
                     grid.appendChild(dayCell);
                 }
 
-                // 默认视角：如果没有选中特定日期，显示全月事件汇总
                 if (!selectedDateStr || !selectedDateStr.startsWith(monthStr)) {
                     renderMonthDetails(monthEvents);
                 }
             }
 
             function renderMonthDetails(monthEvents) {
+                const dict = i18n[currentLang];
                 const container = document.getElementById('dateDetailsContainer');
-                const header = document.getElementById('selectedDateHeader');
+                document.getElementById('selectedDateHeader').textContent = `${dict.months[displayMonth]} ${dict.calSummary}`;
                 document.getElementById('resetMonthViewBtn').classList.add('hidden');
                 
-                header.textContent = `${monthNames[displayMonth]} 重要节点汇总`;
                 container.innerHTML = '';
 
                 if (monthEvents.length === 0) {
                     container.innerHTML = `
                         <div class="h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center">
                             <i class="fa-regular fa-calendar-xmark text-4xl mb-3 opacity-30"></i>
-                            <p class="text-sm">本月无重大联邦/州级税务截止日。</p>
-                            <p class="text-xs mt-2 opacity-60">注：常规按月申报的销售及工资税除外。</p>
+                            <p class="text-sm">${dict.calEmpty}</p>
+                            <p class="text-xs mt-2 opacity-60">${dict.calEmptySub}</p>
                         </div>
                     `;
                     return;
@@ -549,7 +760,7 @@
                     const dayBlock = document.createElement('div');
                     dayBlock.className = "relative pl-4 border-l-2 border-indigo-200 mb-6 pb-2";
                     
-                    let html = `<h5 class="font-bold text-indigo-700 mb-3 absolute -left-[5px] -top-1 bg-slate-50/80 py-1"><div class="w-2 h-2 rounded-full bg-indigo-500 inline-block mr-2 ring-4 ring-indigo-100"></div>${item.day}日</h5><div class="mt-5 space-y-3">`;
+                    let html = `<h5 class="font-bold text-indigo-700 mb-3 absolute -left-[5px] -top-1 bg-slate-50/80 py-1"><div class="w-2 h-2 rounded-full bg-indigo-500 inline-block mr-2 ring-4 ring-indigo-100"></div>${dict.months[displayMonth]} ${item.day}</h5><div class="mt-5 space-y-3">`;
                     
                     item.events.forEach(ev => { html += generateEventCard(ev); });
                     html += `</div>`;
@@ -559,224 +770,66 @@
             }
 
             function renderDateDetails(dateKey) {
+                const dict = i18n[currentLang];
                 const events = calendarData[dateKey];
                 const container = document.getElementById('dateDetailsContainer');
-                const header = document.getElementById('selectedDateHeader');
-                
                 const [m, d] = dateKey.split('-');
-                header.textContent = `${parseInt(m)}月${parseInt(d)}日 申报详情`;
+                
+                document.getElementById('selectedDateHeader').textContent = `${dict.months[parseInt(m)-1]} ${parseInt(d)} - ${dict.calDetail}`;
                 document.getElementById('resetMonthViewBtn').classList.remove('hidden');
                 
                 container.innerHTML = '';
-                events.forEach(ev => {
-                    container.innerHTML += generateEventCard(ev);
-                });
+                events.forEach(ev => { container.innerHTML += generateEventCard(ev); });
             }
 
             function generateEventCard(ev) {
                 const theme = themeColors[ev.color];
-                const noteHtml = ev.note ? `<div class="mt-3 text-xs ${theme.note} p-2 rounded-lg border leading-relaxed"><i class="fa-solid fa-circle-exclamation mr-1.5"></i>${ev.note}</div>` : '';
+                const noteText = ev[`note_${currentLang}`];
+                const noteHtml = noteText ? `<div class="mt-3 text-xs ${theme.note} p-2 rounded-lg border leading-relaxed"><i class="fa-solid fa-circle-exclamation mr-1.5"></i>${noteText}</div>` : '';
                 return `
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
                         <div class="flex justify-between items-center mb-2">
                             <span class="inline-flex items-center text-xs font-bold px-2 py-1 rounded-md ${theme.badge}">
                                 ${ev.state}
                             </span>
-                            <span class="text-xs text-slate-400 font-medium flex items-center"><i class="fa-solid ${ev.icon} mr-1.5 opacity-70"></i>${ev.type}</span>
+                            <span class="text-xs text-slate-400 font-medium flex items-center"><i class="fa-solid ${ev.icon} mr-1.5 opacity-70"></i>${ev[`type_${currentLang}`]}</span>
                         </div>
-                        <h6 class="font-semibold text-slate-800 text-sm leading-snug">${ev.title}</h6>
+                        <h6 class="font-semibold text-slate-800 text-sm leading-snug">${ev[`title_${currentLang}`]}</h6>
                         ${noteHtml}
                     </div>
                 `;
             }
 
-            // 绑定翻页按钮
             document.getElementById('prevMonthBtn').addEventListener('click', () => {
                 displayMonth--;
                 if (displayMonth < 0) { displayMonth = 11; displayYear--; }
-                selectedDateStr = null; 
-                renderCalendar();
+                selectedDateStr = null; renderCalendar();
             });
 
             document.getElementById('nextMonthBtn').addEventListener('click', () => {
                 displayMonth++;
                 if (displayMonth > 11) { displayMonth = 0; displayYear++; }
-                selectedDateStr = null;
-                renderCalendar();
+                selectedDateStr = null; renderCalendar();
             });
             
             document.getElementById('resetMonthViewBtn').addEventListener('click', () => {
-                selectedDateStr = null;
-                renderCalendar();
+                selectedDateStr = null; renderCalendar();
             });
 
-            // Toggle Calendar Modal
             function toggleCalendar() {
-                calendarModal.classList.toggle('hidden');
-                if (!calendarModal.classList.contains('hidden')) {
-                    initCalendar(); // 打开时初始化日历
-                }
+                const modal = document.getElementById('calendarModal');
+                modal.classList.toggle('hidden');
+                if (!modal.classList.contains('hidden')) initCalendar();
             }
             
-            openCalendarBtn.addEventListener('click', toggleCalendar);
-            closeCalendarBtn.addEventListener('click', toggleCalendar);
-            calendarModal.querySelector('.modal-overlay').addEventListener('click', toggleCalendar);
+            document.getElementById('openCalendarBtn').addEventListener('click', toggleCalendar);
+            document.getElementById('closeCalendarBtn').addEventListener('click', toggleCalendar);
+            document.querySelector('.modal-overlay').addEventListener('click', toggleCalendar);
 
-            // Render Sidebar
-            function renderStateList(filterText = '') {
-                stateList.innerHTML = '';
-                const sortedKeys = Object.keys(taxDatabase).sort((a, b) => {
-                    // Pin GA, TX, CA, WA, NY to top
-                    const pins = ["GA", "TX", "CA", "WA", "NY"];
-                    if(pins.includes(a) && !pins.includes(b)) return -1;
-                    if(!pins.includes(a) && pins.includes(b)) return 1;
-                    return a.localeCompare(b);
-                });
-
-                sortedKeys.forEach(key => {
-                    const data = taxDatabase[key];
-                    const searchStr = `${data.name_cn} ${data.name_en} ${data.abbr}`.toLowerCase();
-                    if (!searchStr.includes(filterText.toLowerCase())) return;
-
-                    const btn = document.createElement('button');
-                    btn.className = `w-full text-left px-4 py-3 rounded-xl transition-all duration-200 border border-transparent hover:bg-indigo-50 hover:border-indigo-100 flex items-center justify-between group`;
-                    
-                    let warningIcon = "";
-                    if(data.tags.some(t => t.includes("🚨") || t.includes("📦"))) {
-                        warningIcon = `<i class="fa-solid fa-circle-exclamation text-rose-400 text-xs ml-2"></i>`;
-                    }
-
-                    btn.innerHTML = `
-                        <div class="flex items-center">
-                            <span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-600 font-bold flex items-center justify-center text-sm group-hover:bg-indigo-100 group-hover:text-indigo-700 transition-colors">${data.abbr}</span>
-                            <div class="ml-3">
-                                <span class="block font-medium text-slate-800 text-sm">${data.name_cn} ${warningIcon}</span>
-                                <span class="block text-xs text-slate-500">${data.name_en}</span>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-indigo-400 text-sm"></i>
-                    `;
-                    
-                    btn.onclick = () => {
-                        Array.from(stateList.children).forEach(child => {
-                            child.classList.remove('bg-indigo-50', 'border-indigo-200');
-                            child.classList.add('border-transparent');
-                        });
-                        btn.classList.add('bg-indigo-50', 'border-indigo-200');
-                        btn.classList.remove('border-transparent');
-                        
-                        if (window.innerWidth < 768) toggleSidebar();
-                        showStateData(key);
-                    };
-                    stateList.appendChild(btn);
-                });
-            }
-
-            function showStateData(stateKey) {
-                const data = taxDatabase[stateKey];
-                
-                document.getElementById('stateAbbr').textContent = data.abbr;
-                document.getElementById('stateTitle').textContent = data.name_cn;
-                document.getElementById('stateEnTitle').textContent = data.name_en;
-                document.getElementById('stateNote').innerHTML = data.note;
-                
-                tagContainer.innerHTML = data.tags.map(tag => {
-                    let color = "bg-indigo-50 text-indigo-700 border-indigo-100";
-                    if (tag.includes("无") || tag.includes("免")) color = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                    if (tag.includes("重点") || tag.includes("🚨") || tag.includes("高")) color = "bg-rose-50 text-rose-700 border-rose-100";
-                    if (tag.includes("库存") || tag.includes("📦")) color = "bg-purple-50 text-purple-700 border-purple-100";
-                    return `<span class="px-3 py-1 rounded-full text-xs font-semibold border ${color}">${tag}</span>`;
-                }).join('');
-
-                taxCardsContainer.innerHTML = '';
-                
-                data.taxes.forEach((tax, index) => {
-                    const card = document.createElement('div');
-                    card.className = "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in";
-                    card.style.animationDelay = `${index * 0.1}s`;
-
-                    let iconClass = "fa-file-invoice-dollar text-indigo-500";
-                    if (tax.type.includes("销售")) iconClass = "fa-cash-register text-slate-400";
-                    if (tax.type.includes("所得") || tax.type.includes("Income")) iconClass = "fa-landmark text-emerald-600";
-                    if (tax.type.includes("总收入") || tax.type.includes("特许") || tax.type.includes("商业") || tax.type.includes("CAT")) iconClass = "fa-chart-pie text-rose-500";
-                    if (tax.type.includes("库存") || tax.type.includes("财产")) iconClass = "fa-boxes-stacked text-purple-500";
-
-                    let certHtml = "";
-                    if (tax.cert) {
-                        certHtml = `
-                            <div class="mt-5 pt-4 border-t border-slate-100/60">
-                                <a href="${tax.cert.link}" target="_blank" class="inline-flex items-center text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-xl font-semibold transition-colors border border-indigo-100 shadow-sm">
-                                    <i class="fa-solid fa-file-pdf mr-2"></i>
-                                    获取表格: ${tax.cert.name}
-                                </a>
-                            </div>
-                        `;
-                    }
-
-                    card.innerHTML = `
-                        <div class="bg-slate-50/80 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center">
-                                <div class="w-8 h-8 rounded bg-white flex items-center justify-center mr-3 shadow-sm border border-slate-200">
-                                    <i class="fa-solid ${iconClass}"></i>
-                                </div>
-                                ${tax.type}
-                            </h3>
-                        </div>
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
-                                <div class="col-span-1 lg:col-span-2 bg-slate-50 border border-slate-200/60 rounded-xl p-5">
-                                    <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center">
-                                        <i class="fa-solid fa-link mr-2"></i> 纳税义务触发条件 (Nexus)
-                                    </h4>
-                                    <p class="text-slate-700 text-sm leading-relaxed">${tax.nexus}</p>
-                                </div>
-                                <div class="space-y-6">
-                                    <div>
-                                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
-                                            <i class="fa-solid fa-percent text-slate-400 mr-2"></i> 税率 (Rate)
-                                        </h4>
-                                        <p class="text-slate-800 font-medium text-sm bg-slate-100/50 inline-block px-3 py-1.5 rounded-lg border border-slate-200">${tax.rate}</p>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
-                                            <i class="fa-solid fa-calculator text-slate-400 mr-2"></i> 计算方法与实务
-                                        </h4>
-                                        <div class="text-slate-600 text-sm leading-relaxed">${tax.calc}</div>
-                                        ${certHtml}
-                                    </div>
-                                </div>
-                                <div class="space-y-6 lg:border-l border-slate-100 lg:pl-8">
-                                    <div>
-                                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
-                                            <i class="fa-regular fa-clock text-slate-400 mr-2"></i> 申报时间 (Deadline)
-                                        </h4>
-                                        <p class="text-slate-700 text-sm bg-blue-50 text-blue-800 px-3 py-2 rounded-lg border border-blue-100">${tax.deadline}</p>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
-                                            <i class="fa-solid fa-gavel text-slate-400 mr-2"></i> 晚交惩罚 (Penalty)
-                                        </h4>
-                                        <p class="text-slate-600 text-sm flex items-start">
-                                            <i class="fa-solid fa-triangle-exclamation text-rose-400 mt-1 mr-2 text-xs"></i>
-                                            ${tax.penalty}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    taxCardsContainer.appendChild(card);
-                });
-
-                welcomeScreen.classList.add('hidden');
-                // Fix for scroll issue: use flex instead of block to maintain proper layout bounds
-                taxDisplayScreen.classList.remove('hidden');
-                taxDisplayScreen.classList.add('flex');
-            }
-
-            // Init
             searchInput.addEventListener('input', (e) => renderStateList(e.target.value));
-            renderStateList();
+
+            // Initial setup
+            updateUILanguage(); 
         });
     </script>
 </body>
