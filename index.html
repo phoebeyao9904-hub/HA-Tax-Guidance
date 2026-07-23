@@ -405,14 +405,28 @@
         });
 
         const taxEvents = [
-            { date: "03-01", states: ["DE"], event_zh: "特拉华州特许税申报截止", event_en: "DE Franchise Tax Due" },
-            { date: "03-15", states: ["NY", "CA", "TX"], event_zh: "企业所得税预缴", event_en: "CIT Prepayments Due" },
-            { date: "04-01", states: ["GA"], event_zh: "⚠️ 佐治亚州自由港豁免截止", event_en: "⚠️ GA Freeport Exemption Deadline" },
-            { date: "04-15", states: ["CA", "NY", "IL", "GA"], event_zh: "多数州年度所得税申报截止 (或申请延期)", event_en: "Most States CIT Deadline (or Extension)" },
-            { date: "04-15", states: ["TX", "KY"], event_zh: "库存财产申报 (Rendition) 截止", event_en: "Inventory Rendition Deadline" },
-            { date: "05-10", states: ["OH"], event_zh: "俄亥俄州商业活动税季报截止", event_en: "OH CAT Quarterly Due" },
-            { date: "05-15", states: ["TX"], event_zh: "德克萨斯州特许经营税无税申报截止", event_en: "TX Margin Tax Report Due" },
-            { date: "10-15", states: ["CA", "NY", "IL", "GA"], event_zh: "延期后的年度企业所得税最终截止日", event_en: "Extended CIT Final Deadline" }
+            { date: "01-15", states: ["NY", "CA", "NJ"], event_zh: "Q4 企业所得税预缴", event_en: "Q4 CIT Estimates Due" },
+            { date: "01-20", states: ["NY", "DE", "FL"], event_zh: "Q4 销售税及特拉华总收入税申报", event_en: "Q4 Sales & DE GRT Tax Due" },
+            { date: "01-31", states: ["WA", "CA", "TX"], event_zh: "Q4 华盛顿 B&O 及各州销售税截止", event_en: "Q4 WA B&O & Sales Tax Due" },
+            { date: "02-10", states: ["OH"], event_zh: "俄亥俄商业活动税 (CAT) Q4 截止", event_en: "OH CAT Q4 Deadline" },
+            { date: "03-01", states: ["DE", "KY", "AR"], event_zh: "特拉华特许税及部分州库存税申报", event_en: "DE Franchise & Property Tax Rendition" },
+            { date: "04-01", states: ["GA"], event_zh: "⚠️ 佐治亚州自由港豁免截止 (关键!)", event_en: "⚠️ GA Freeport Exemption (CRITICAL!)" },
+            { date: "04-15", states: ["全美 40+ 州", "CA", "NY"], event_zh: "年度所得税正报 (或申请延期) 及 Q1 预缴", event_en: "Annual CIT Return (or Ext.) & Q1 Estimates" },
+            { date: "04-15", states: ["TX", "KY", "MS"], event_zh: "库存财产申报 (Rendition) 截止", event_en: "Inventory Rendition Deadline" },
+            { date: "04-20", states: ["NY", "DE", "FL"], event_zh: "Q1 销售税及特拉华总收入税申报", event_en: "Q1 Sales & DE GRT Tax Due" },
+            { date: "04-30", states: ["WA", "CA", "TX"], event_zh: "Q1 华盛顿 B&O 及各州销售税截止", event_en: "Q1 WA B&O & Sales Tax Due" },
+            { date: "05-10", states: ["OH"], event_zh: "俄亥俄商业活动税 (CAT) Q1 截止", event_en: "OH CAT Q1 Deadline" },
+            { date: "05-15", states: ["TX", "LA"], event_zh: "得克萨斯州特许经营税 (Margin Tax) 截止", event_en: "TX Margin Tax Report Due" },
+            { date: "06-15", states: ["全美多数州", "CA"], event_zh: "Q2 企业所得税预缴", event_en: "Q2 CIT Estimates Due" },
+            { date: "07-20", states: ["NY", "DE", "FL"], event_zh: "Q2 销售税及特拉华总收入税申报", event_en: "Q2 Sales & DE GRT Tax Due" },
+            { date: "07-31", states: ["WA", "CA", "TX"], event_zh: "Q2 华盛顿 B&O 及各州销售税截止", event_en: "Q2 WA B&O & Sales Tax Due" },
+            { date: "08-10", states: ["OH"], event_zh: "俄亥俄商业活动税 (CAT) Q2 截止", event_en: "OH CAT Q2 Deadline" },
+            { date: "09-15", states: ["全美多数州", "NY"], event_zh: "Q3 企业所得税预缴", event_en: "Q3 CIT Estimates Due" },
+            { date: "10-15", states: ["全美 40+ 州", "IL"], event_zh: "延期后的年度企业所得税最终截止日", event_en: "Extended CIT Final Deadline" },
+            { date: "10-20", states: ["NY", "DE", "FL"], event_zh: "Q3 销售税及特拉华总收入税申报", event_en: "Q3 Sales & DE GRT Tax Due" },
+            { date: "10-31", states: ["WA", "CA", "TX"], event_zh: "Q3 华盛顿 B&O 及各州销售税截止", event_en: "Q3 WA B&O & Sales Tax Due" },
+            { date: "11-10", states: ["OH"], event_zh: "俄亥俄商业活动税 (CAT) Q3 截止", event_en: "OH CAT Q3 Deadline" },
+            { date: "12-15", states: ["全美多数州", "CA"], event_zh: "Q4 企业所得税预缴 (部分州提前)", event_en: "Q4 CIT Estimates Due (Some States)" }
         ];
 
         function toggleLang() {
